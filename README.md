@@ -4,11 +4,12 @@ A small collection of simple web examples created for experimenting with the Cod
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `color_picker.html` | Demo page with a single button that changes the page background to a random color. |
-| `tic_tac_toe.html` | A fully‑functional implementation of Tic‑Tac‑Toe using plain HTML, CSS and JavaScript. |
-| `pong.html` | A classic Pong game written in plain JavaScript. |
+| File | Lines | Characters (≈) | JavaScript functions |
+|------|-------|----------------|-----------------------|
+| `color_picker.html` | 43 | ≈ 1 450 | 1 (`randomColor`) |
+| `tic_tac_toe.html` | 146 | ≈ 5 040 | 5 (`updateStatus`, `checkWin`, `checkDraw`, `handleCellClick`, `resetGame`) |
+| `pong.html` | 111 | ≈ 3 200 | 5 (`drawNet`, `drawRect`, `drawCircle`, `draw`, `resetBall`) |
+| **Total** | **280** | **≈ 9 680** | **11** |
 
 ## How to Run
 
