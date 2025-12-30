@@ -8,6 +8,7 @@ A small collection of simple web examples created for experimenting with the Cod
 |------|---------|
 | `color_picker.html` | Demo page with a single button that changes the page background to a random color. |
 | `tic_tac_toe.html` | A fully‑functional implementation of Tic‑Tac‑Toe using plain HTML, CSS and JavaScript. |
+| `pong.html` | A classic Pong game written in plain JavaScript. |
 
 ## How to Run
 
