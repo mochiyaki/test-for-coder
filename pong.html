@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pong</title>
+<style>
+    body{margin:0;background:#000;display:flex;justify-content:center;align-items:center;height:100vh;}
+    canvas{background:#111;}
+</style>
+</head>
+<body>
+<canvas id="pongCanvas" width="800" height="500"></canvas>
+<script>
+const canvas = document.getElementById('pongCanvas');
+const ctx = canvas.getContext('2d');
+
+const net = {
+  x: canvas.width / 2 - 1,
+  y: 0,
+  w: 2,
+  h: canvas.height
+};
+
+const player = { x: 10, y: canvas.height/2-50, w: 10, h: 100, dy: 0 };
+const ai = { x: canvas.width-20, y: canvas.height/2-50, w: 10, h: 100, dy: 0 };
+const ball = { x: canvas.width/2, y: canvas.height/2, r: 8, speed: 5, dx: 5, dy: 5 };
+let score = {player:0, ai:0};
+
+canvas.addEventListener('mousemove', evt => {
+  const rect = canvas.getBoundingClientRect();
+  const root = document.documentElement;
+  const mouseY = evt.clientY - rect.top - root.scrollTop;
+  player.y = mouseY - player.h/2;
+});
+
+function drawNet(){
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(net.x, net.y, net.w, net.h);
+}
+
+function drawRect(x,y,w,h,color){
+  ctx.fillStyle = color;
+  ctx.fillRect(x,y,w,h);
+}
+
+function drawCircle(x,y,r,color){
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2,true);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function draw(){
+  //clear canvas
+  ctx.fillStyle='#000';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  drawNet();
+  drawRect(player.x,player.y,player.w,player.h,'#fff');
+  drawRect(ai.x,ai.y,ai.w,ai.h,'#fff');
+  drawCircle(ball.x,ball.y,ball.r,'#fff');
+
+  //move ball
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  //top bot collision
+  if(ball.y+ball.r>canvas.height||ball.y-ball.r<0){
+    ball.dy*=-1;
+  }
+
+  //ball-player collision
+  if(ball.x-ball.r<player.x+player.w&&ball.y>player.y&&ball.y<player.y+player.h){
+    ball.dx*=-1;
+    ball.x = player.x+player.w+ball.r;
+  }
+
+  //ball-ai collision
+  if(ball.x+ball.r>ai.x&&ball.y>ai.y&&ball.y<ai.y+ai.h){
+    ball.dx*=-1;
+    ball.x = ai.x-ball.r;
+  }
+
+  //score
+  if(ball.x<0){
+    score.ai++;
+    resetBall();
+  }
+  if(ball.x>canvas.width){
+    score.player++;
+    resetBall();
+  }
+
+  //ai movement
+  ai.y = ball.y - ai.h/2;
+
+  //draw score
+  ctx.font='50px Arial';
+  ctx.fillText(score.player, canvas.width/4, 50);
+  ctx.fillText(score.ai, 3*canvas.width/4, 50);
+}
+
+function resetBall(){
+  ball.x = canvas.width/2;
+  ball.y = canvas.height/2;
+  ball.dx = -ball.dx;
+}
+
+setInterval(draw,1000/60);
+</script>
+</body>
+</html>
