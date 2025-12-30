@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random Color Picker</title>
+    <style>
+        body {
+            transition: background-color 0.5s;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        button {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <button id="pick">Pick Random Color</button>
+    <script>
+        function randomColor() {
+            const r = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+            const g = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+            const b = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+            return `#${r}${g}${b}`;
+        }
+        document.getElementById('pick').addEventListener('click', () => {
+            document.body.style.backgroundColor = randomColor();
+        });
+    </script>
+</body>
+</html>
