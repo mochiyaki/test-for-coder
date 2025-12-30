@@ -18,6 +18,7 @@ Because they are plain HTML files you can simply open them in a browser:
 # Windows
 start color_picker.html
 start tic_tac_toe.html
+start pong.html
 ```
 
 or double‑click them in Explorer. No server or build step is required.
