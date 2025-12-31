@@ -17,6 +17,7 @@ A small collection of simple web examples created for experimenting with the Cod
 - **color_picker.html**: Randomly pick a color and change the page background.
 - **tic_tac_toe.html**: Simple two‑player Tic‑Tac‑Toe with win/draw detection.
 - **blackjack.html**: Simple Blackjack game with hit and stand options.
+- **pong.html**: A simple Pong game with two paddles and a ball.
 
 ## How to Run
 
@@ -27,6 +28,7 @@ Because they are plain HTML files you can simply open them in a browser:
 start color_picker.html
 start tic_tac_toe.html
 start pong.html
+start blackjack.html
 ```
 
 or double‑click them in Explorer. No server or build step is required.
