@@ -10,7 +10,8 @@ A small collection of simple web examples created for experimenting with the Cod
 | `tic_tac_toe.html` | 146 | ≈ 5 040 | 5 (`updateStatus`, `checkWin`, `checkDraw`, `handleCellClick`, `resetGame`) |
 | `pong.html` | 111 | ≈ 3 200 | 5 (`drawNet`, `drawRect`, `drawCircle`, `draw`, `resetBall`) |
 | `blackjack.html` | 136 | ≈ 4 000 | 8 (`createDeck`, `shuffle`, `cardValue`, `handValue`, `drawCard`, `renderHand`, `startGame`, `updateMessage`) |
-| **Total** | **416** | **≈ 13 680** | **19** |
+| `bubble_sort_demo.html` | 72 | ≈ 4 200 | 4 (`bubbleSort`, `createBoxes`, `log`, `sortBtn`) |
+| **Total** | **488** | **≈ 17 900** | **23** |
 
 ## Game Descriptions
 
@@ -18,6 +19,7 @@ A small collection of simple web examples created for experimenting with the Cod
 - **tic_tac_toe.html**: Simple two‑player Tic‑Tac‑Toe with win/draw detection.
 - **blackjack.html**: Simple Blackjack game with hit and stand options.
 - **pong.html**: A simple Pong game with two paddles and a ball.
+- **bubble_sort_demo.html**: Demonstrates bubble sort visualization.
 
 ## How to Run
 

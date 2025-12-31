@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bubble Sort Demo</title>
+  <style>
+    body{font-family:sans-serif;text-align:center;}
+    #array{display:flex;justify-content:center;margin:20px 0;}
+    .item{padding:10px 15px;border:1px solid #333;border-radius:4px;margin:0 5px;background:#e0e0e0;font-weight:bold;}
+    .swap{background:#ffeb3b;animation:highlight 0.5s ease-out 0.5s 1;}    
+    @keyframes highlight{0%{background:#ffeb3b;} 100%{background:#e0e0e0;}}
+    #log{margin-top:10px;color:#555;}
+  </style>
+</head>
+<body>
+<h1>Bubble Sort Demo</h1>
+<p>Enter numbers separated by commas:<br>
+  <input type="text" id="input" value="5, 3, 8, 4, 2" style="width:80%;">
+</p>
+<button id="sortBtn">Run Bubble Sort</button>
+<div id="array"></div>
+<div id="log"></div>
+<script>
+const input=document.getElementById('input');
+const arrayDiv=document.getElementById('array');
+const logDiv=document.getElementById('log');
+const sortBtn=document.getElementById('sortBtn');
+
+function createBoxes(arr){arrayDiv.innerHTML='';arr.forEach((v,i)=>{
+  const box=document.createElement('div');box.className='item';box.textContent=v;box.setAttribute('data-index',i);
+  arrayDiv.appendChild(box);
+});}
+
+function log(msg){logDiv.textContent=msg;}
+
+async function bubbleSort(arr){
+  const n=arr.length;
+  let swapped;
+  for(let i=0;i<n;i++){
+    swapped=false;
+    for(let j=0;j<n-i-1;j++){
+      if(arr[j]>arr[j+1]){
+        // swap values in array
+        [arr[j],arr[j+1]]=[arr[j+1],arr[j]];
+        swapped=true;
+        // animate swap in DOM
+        const boxA=arrayDiv.children[j];
+        const boxB=arrayDiv.children[j+1];
+        if(boxA && boxB){
+          // swap order
+          arrayDiv.insertBefore(boxB, boxA);
+          log(`Swapped ${arr[j+1]} and ${arr[j]}`);
+          await new Promise(res=>setTimeout(res,500));
+        }
+      }
+    }
+    if(!swapped) break;
+  }
+  log('Sorted!');
+}
+
+sortBtn.addEventListener('click',()=>{
+  const str=input.value;
+  const arr=str.split(',').map(s=>parseInt(s.trim())).filter(v=>!isNaN(v));
+  if(arr.length===0){alert('Please enter valid numbers');return;}
+  createBoxes(arr);
+  log('Sorting...');
+  bubbleSort(arr);
+});
+</script>
+</body>
+</html>
