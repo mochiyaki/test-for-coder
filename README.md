@@ -33,6 +33,7 @@ start color_picker.html
 start tic_tac_toe.html
 start pong.html
 start blackjack.html
+start bubble_sort_demo.html
 start rbtree_demo.html
 ```
 
