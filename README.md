@@ -9,13 +9,14 @@ A small collection of simple web examples created for experimenting with the Cod
 | `color_picker.html` | 43 | ≈ 1 450 | 1 (`randomColor`) |
 | `tic_tac_toe.html` | 146 | ≈ 5 040 | 5 (`updateStatus`, `checkWin`, `checkDraw`, `handleCellClick`, `resetGame`) |
 | `pong.html` | 111 | ≈ 3 200 | 5 (`drawNet`, `drawRect`, `drawCircle`, `draw`, `resetBall`) |
-| **Total** | **280** | **≈ 9 680** | **11** |
+| `blackjack.html` | 136 | ≈ 4 000 | 8 (`createDeck`, `shuffle`, `cardValue`, `handValue`, `drawCard`, `renderHand`, `startGame`, `updateMessage`) |
+| **Total** | **416** | **≈ 13 680** | **19** |
 
 ## Game Descriptions
 
 - **color_picker.html**: Randomly pick a color and change the page background.
 - **tic_tac_toe.html**: Simple two‑player Tic‑Tac‑Toe with win/draw detection.
-- **pong.html**: Classic Pong with AI paddle and score.
+- **blackjack.html**: Simple Blackjack game with hit and stand options.
 
 ## How to Run
 
