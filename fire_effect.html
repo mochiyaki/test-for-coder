@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ASCII Fire Effect</title>
+<style>
+  body {background:#000; color:#ff6600; font-family:monospace;}
+  pre {font-size:14px; line-height:1; margin:0;}
+</style>
+</head>
+<body>
+<pre id="fire"></pre>
+<script>
+// --------------------------------------------------------
+// Simple ASCII fire – adapted so that it works immediately
+// 
+// Grid description:
+//   index 0  → top row
+//   index height-1 → bottom row (the “ground” that feeds new flames)
+// --------------------------------------------------------
+const canvas = document.getElementById('fire');
+const width  = 80;          // columns
+const height = 30;          // rows
+let grid   = Array.from({length:height}, () => Array(width).fill(0));
+const palette = ' .,:;i1tfLCG08@'; // 0 (off) to max value maps to chars
+
+// -----------------------------------------------------------------
+// One simulation step: heat rises, decays, and new flames ignite.
+// -----------------------------------------------------------------
+function step() {
+  // Propagate from below to above – avoid reading out of bounds
+  for (let y = height - 2; y >= 0; --y) { // start at height-2 down to 0
+    for (let x = 0; x < width; ++x) {
+      const decay  = Math.floor(Math.random() * 5);
+      const source = grid[y + 1][x]; // value from the cell just below
+      if (source > 0) {
+        let newVal = source - decay;
+        if (newVal < 0) newVal = 0;
+        grid[y][x] = newVal;
+      }
+    }
+  }
+
+  // Ignite the bottom row with fresh “fire” values
+  for (let x = 0; x < width; ++x) {
+    grid[height - 1][x] = Math.floor(Math.random() * 3) + 7; // 7‑9
+  }
+
+  render();
+}
+
+function render() {
+  const lines = [];
+  for (let y = 0; y < height; ++y) {
+    let line = '';
+    for (let x = 0; x < width; ++x) {
+      const val = grid[y][x];
+      line += palette[Math.min(val, palette.length - 1)];
+    }
+    lines.push(line);
+  }
+  canvas.textContent = lines.join('\n');
+}
+
+// Start immediately and then every 80 ms (~12 FPS)
+step();
+setInterval(step, 80);
+</script>
+</body>
+</html>
