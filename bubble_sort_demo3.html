@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Bubble Sort Demo</title>
+<style>
+  body {font-family:Arial, sans-serif; padding:20px;}
+  #arrayContainer {display:flex; gap:5px; margin-top:20px;}
+  .box {width:30px; height:30px; line-height:30px; text-align:center; background:#e0e0e0; border:1px solid #999;}
+  .active {background:#a7d8ff;}
+  .swap {background:#ffb3b3;}
+  button {margin-right:10px;}
+</style>
+</head>
+<body>
+<h1>Bubble Sort Demo</h1>
+<p>Click <strong>Generate Random Array</strong> to create a set of numbers, then click <strong>Sort</strong> to see the bubble sort process step by step.</p>
+<button id="genBtn">Generate Random Array</button>
+<button id="sortBtn" disabled>Sort</button>
+<div id="arrayContainer"></div>
+<script>
+const genBtn=document.getElementById('genBtn');
+const sortBtn=document.getElementById('sortBtn');
+const container=document.getElementById('arrayContainer');
+let arr=[];
+let steps=[];
+
+function createBox(val){
+  const div=document.createElement('div');
+  div.className='box';
+  div.textContent=val;
+  return div;
+}
+function generateArray(){
+  arr=[];
+  for(let i=0;i<10;i++){
+    arr.push(Math.floor(Math.random()*100));
+  }
+  renderArray();
+  sortBtn.disabled=false;
+}
+function renderArray(highlighted=[]){
+  container.innerHTML='';
+  arr.forEach((val,idx)=>{
+    const box=createBox(val);
+    if(highlighted.includes(idx)) box.classList.add('active');
+    container.appendChild(box);
+  });
+}
+function bubbleSort(){
+  steps=[];
+  const n=arr.length;
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n-i-1;j++){
+      steps.push({type:'compare',indices:[j,j+1]});
+      if(arr[j]>arr[j+1]){
+        steps.push({type:'swap',indices:[j,j+1]});
+        const temp=arr[j]; arr[j]=arr[j+1]; arr[j+1]=temp;
+      }
+    }
+  }
+}
+function playSteps(){
+  let idx=0;
+  function next(){
+    if(idx>=steps.length){
+      sortBtn.disabled=false;
+      return;
+    }
+    const step=steps[idx];
+    renderArray(step.indices);
+    if(step.type==='swap'){
+      const boxes=container.children;
+      const temp=boxes[step.indices[0]].textContent;
+      boxes[step.indices[0]].textContent=boxes[step.indices[1]].textContent;
+      boxes[step.indices[1]].textContent=temp;
+    }
+    idx++;
+    setTimeout(next,500);
+  }
+  sortBtn.disabled=true;
+  next();
+}
+
+genBtn.addEventListener('click', generateArray);
+sortBtn.addEventListener('click', ()=>{bubbleSort(); playSteps();});
+
+generateArray(); // initial array
+</script>
+</body>
+</html>

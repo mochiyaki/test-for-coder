@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bubble Sort Demo</title>
+  <style>
+    body{font-family:sans-serif;margin:2rem;}
+    .array{display:flex;gap:0.5rem;}
+    .box{background:#4a90e2;color:white;padding:0.5rem 1rem;border-radius:4px;}
+    .highlight{background:#e94e77;}
+    .btn{margin-top:1rem;padding:0.5rem 1rem;font-size:1rem;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <h1>Bubble Sort Demo</h1>
+  <div class="array" id="array"></div>
+  <input type="text" id="arrayInput" placeholder="Enter comma-separated numbers" class="btn" style="margin-top:1rem;">
+  <button class="btn" id="startBtn">Start Sort</button>
+
+  <script>
+    const arrayEl = document.getElementById('array');
+    const startBtn = document.getElementById('startBtn');
+    let arr = [5, 3, 8, 4, 2, 7, 1, 6];
+
+    function render(arr, idx1=null, idx2=null){
+      arrayEl.innerHTML='';
+      arr.forEach((val,i)=>{
+        const span=document.createElement('span');
+        span.className='box';
+        if(i===idx1||i===idx2) span.classList.add('highlight');
+        span.textContent=val;
+        arrayEl.appendChild(span);
+      });
+    }
+
+    async function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+    async function bubbleSort(arr){
+      const n=arr.length;
+      for(let i=0;i<n;i++){
+        for(let j=0;j<n-1-i;j++){
+          render(arr,j,j+1);
+          await sleep(500);
+          if(arr[j]>arr[j+1]){
+            [arr[j],arr[j+1]]=[arr[j+1],arr[j]];
+            render(arr,j,j+1);
+            await sleep(500);
+          }
+        }
+      }
+      render(arr);
+    }
+
+    startBtn.onclick=()=>{
+      const input=document.getElementById('arrayInput').value;
+      let nums=input.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+      if(nums.length===0){ nums=[5,3,8,4,2,7,1,6]; }
+      arr=nums;
+      render(arr);
+      bubbleSort(arr);
+    };
+
+    render(arr);
+  </script>
+</body>
+</html>
