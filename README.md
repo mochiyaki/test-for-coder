@@ -1,5 +1,4 @@
 # test-for-coder
-
 A small collection of simple web examples created for experimenting with the Coder terminal AI.
 
 ## Files
@@ -14,7 +13,8 @@ A small collection of simple web examples created for experimenting with the Cod
 | `bubble_sort_demo3.html` | 88 | ≈ 5 200 | 6 (`generateSteps`, `renderArray`, `activeClass`, `nextStep`, `playSteps`, `sortBtn`) |
 | `bubble_sort_demo4.html` | 74 | ≈ 3 900 | 5 (`drawBars`, `generateArray`, `playVisualization`, `sortBtn`, `resetBtn`) |
 | `rbtree_demo.html` | 23 | ≈ 1 250 | 1 (`draw`) |
-| **Total** | **693** | **≈ 28 240** | **35** |
+| **`fire_effect.html`** | 70 | ≈ 2 100 | 2 (`step`, `render`) |
+| **Total** | **763** | **≈ 30 340** | **37** |
 
 ## Game Descriptions
 
@@ -26,6 +26,7 @@ A small collection of simple web examples created for experimenting with the Cod
 - **bubble_sort_demo3.html**: A step‑buffered box‑block bubble sort visualization separated into data and animation layers.
 - **bubble_sort_demo4.html**: A responsive bar‑chart bubble sort visualizer with color highlights and disabled controls.
 - **rbtree_demo.html**: A simple Red‑Black Tree visualizer placeholder.
+- **fire_effect.html**: Real‑time ASCII “fire” effect rendered in a `<pre>` element, demonstrating a lightweight particle‑like simulation without a canvas.
 
 ## How to Run
 
@@ -41,6 +42,7 @@ start bubble_sort_demo2.html
 start bubble_sort_demo3.html
 start bubble_sort_demo4.html
 start rbtree_demo.html
+start fire_effect.html
 ```
 
 or double‑click them in Explorer. No server or build step is required.
