@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!--
+ * bubble_sort_demo4.html - Responsive bar‑chart bubble sort visualizer
+ * Features:
+ *   * Bars (height % of container) represent numeric values
+ *   * "Generate" button creates 10 random integers 1–100
+ *   * "Sort" button walks the array one comparison at a time, with colour feedback on compare, swap and final sorted state
+ *   * Animation is performed via async/await.  Buttons are disabled during the animation to avoid user interference.
+ *   * No external dependencies – pure JS, CSS and HTML
+ */
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<title>Bubble Sort – Demo 4 (Responsive Bar Chart)</title>
+<link rel="icon" href="../assets/icon.svg" />
+<style>
+    /* ==== Page layout ==== */
+    body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        align-items: stretch;
+        max-width: 48rem;
+        margin: 1rem auto;
+    }
+    header {
+        display: flex;
+        gap: 1rem;
+    }
+    button {
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 0.7rem 0.85rem;
+        border-radius: 0.2rem;
+        border: none;
+        background: #296ce8;
+        color: white;
+        cursor: pointer;
+        transition: filter 0.1s;
+    }
+    button:disabled { filter: saturate(0.8); opacity: 0.8; cursor: default; }
+    pre code { font-size: 0.85rem; }
+
+    /* ==== Animation CSS ==== */
+    #barContainer {
+        display: flex;
+        align-items: flex-end;
+        background: #f1f1f1;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        min-height: 13rem;
+        border: 1px solid #ccc;
+    }
+    .bar {
+        flex: 1;
+        margin: 0 1px;
+        font-size: 0.75rem;
+        font-family: monospace;
+        overflow: hidden;
+        padding-top: 0.5rem;
+        text-align: center;
+        border-radius: 0.125rem;
+        background-color: #3E5BF0; /* default blue */
+        height: 0;
+        transition: height 0.25s ease-out, background-color 0.3s;
+        position: relative;
+    }
+    .bar::after {
+        content: attr(data-val);
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%, -0.35rem);
+    }
+    .bar.active { background-color:#f57c00; }            /* orange during compare */
+    .bar.swap { background-color:#d50000; }            /* red while swapping */
+    .bar.final { background-color:#388e3c; }           /* green when confirmed in place */
+
+    /* ==== Responsive helpers ==== */
+    @media (max-width: 360px){
+        body{font-size: 0.93rem;}
+    }
+
+</style>
+</head>
+<body>
+<header>
+    <button id="genBtn" type="button">Generate 10 random numbers</button>
+    <button id="sortBtn" type="button" disabled>Sort</button>
+    <button id="resetBtn" type="button" disabled>Reset</button>
+</header>
+
+<div id="barContainer"></div>
+<pre><code id="log" class="hljs javascript"></code></pre>
+
+<script>
+// ---------------------------- Utility --------------------------------
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const array = [];
+const container = document.getElementById('barContainer');
+const genBtn = document.getElementById('genBtn');
+const sortBtn = document.getElementById('sortBtn');
+const resetBtn = document.getElementById('resetBtn');
+const logEl = document.getElementById('log');
+
+function log(msg){ logEl.textContent += msg + '\n'; logEl.scrollTop = logEl.scrollHeight; }
+
+// ---------------------------- Rendering --------------------------------
+function renderArray(){
+    container.innerHTML = '';
+    array.forEach(val => {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.dataset.val = val;
+        bar.style.height = `${Math.max(val,1)}%`; // keep a visible bar
+        container.appendChild(bar);
+    });
+}
+
+function generateArray(){
+    array.length = 0;
+    for(let i=0;i<10;i++) array.push(Math.floor(Math.random()*100)+1);
+    log('Generated: '+array.join(', '));
+    renderArray();
+    sortBtn.disabled = false;
+    resetBtn.disabled = false;
+}
+
+// ---------------------------- Animation --------------------------------
+async function playVisualization(steps){
+    const bars = Array.from(container.children);
+    for(const step of steps){
+        const {type, idx1, idx2, arr} = step;
+        // sync bar heights with the state of the array
+        bars.forEach((b, i)=>{ b.style.height = `${Math.max(arr[i],1)}%`; b.dataset.val = arr[i]; });
+
+        const a = bars[idx1];
+        const b = bars[idx2];
+
+        // 1. Highlight compare
+        a.classList.add('active'); if(idx1!==idx2) b.classList.add('active');
+        await sleep(600);
+        // 2. Optional swap animation
+        if(type==='swap'){
+            a.classList.remove('active'); a.classList.add('swap');
+            b.classList.remove('active'); b.classList.add('swap');
+            await sleep(600);
+        }
+        // 3. Reset to default
+        [a,b].forEach(el=>{ el.classList.remove('active','swap'); });
+        // 4. Mark final positions once sorted
+        if(type==='final'){
+            bars[arr.idxConfirmed].classList.add('final');
+        }
+        await sleep(300);
+    }
+}
+
+function generateSteps(){
+    const steps=[];
+    const arr=Array.from(array); // work on a copy
+    let sortedIdx= array.length-1;
+    while(sortedIdx>0){
+        let swapped=false;
+        for(let i=0;i<sortedIdx;i++){
+            // compare step
+            steps.push({type:'compare', idx1:i, idx2:i+1, arr:arr.slice()});
+            if(arr[i]>arr[i+1]){
+                // swap step
+                [arr[i],arr[i+1]]=[arr[i+1],arr[i]];
+                swapped=true;
+                steps.push({type:'swap', idx1:i, idx2:i+1, arr:arr.slice()});
+            }
+        }
+        if(!swapped) break;
+        sortedIdx--;
+    }
+    return steps;
+}
+
+// ---------------------------- Controls --------------------------------
+genBtn.addEventListener('click', generateArray);
+
+sortBtn.addEventListener('click', async () => {
+    sortBtn.disabled = genBtn.disabled = resetBtn.disabled = true;
+    log('Starting bubble sort...');
+
+    const steps = generateSteps();
+    log('Total steps: '+steps.length);
+    await playVisualization(steps);
+
+    log('Array is now sorted!');
+    // Mark final bars
+    Array.from(container.children).forEach(b => b.classList.add('final'));
+    sortBtn.disabled = true;
+});
+
+resetBtn.addEventListener('click', () => { container.innerHTML = ''; logEl.textContent=''; });
+
+// ---- initial state on page load ----
+generateArray();
+</script>
+
+</body>
+</html>
