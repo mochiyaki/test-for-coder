@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Demo</title>
+    <style>
+        body {font-family: Arial, sans-serif; text-align:center; margin-top: 50px;}
+        .array {display: flex; justify-content: center; align-items: flex-end; margin: 20px;}
+        .bar {width: 30px; margin: 0 5px; background-color: steelblue; display:flex; flex-direction:column; justify-content:flex-end;}
+        .bar span{font-size:12px;color:white;padding:5px 0;}
+        button {padding:10px 20px;margin:10px;}
+    </style>
+</head>
+<body>
+    <h1>Bubble Sort Demo</h1>
+    <div class="array" id="array"></div>
+    <div>
+        <button id="newArray">New Random Array</button>
+        <button id="sort">Bubble Sort</button>
+    </div>
+
+    <script>
+        const arrayDiv = document.getElementById('array');
+        let array = [];
+
+        function renderArray(arr, highlightIndex = -1, compareIndex = -1){
+            arrayDiv.innerHTML='';
+            arr.forEach((val, i)=>{
+                const bar = document.createElement('div');
+                bar.className='bar';
+                bar.style.height = val*2 +'px';
+                bar.style.backgroundColor = (i===highlightIndex? 'orange' : (i===compareIndex? 'red':'steelblue'));
+                const label = document.createElement('span');
+                label.textContent = val;
+                bar.appendChild(label);
+                arrayDiv.appendChild(bar);
+            });
+        }
+
+        function getRandomArray(){
+            const newArr = [];
+            for(let i=0;i<10;i++){
+                newArr.push(Math.floor(Math.random()*50)+5);
+            }
+            return newArr;
+        }
+
+        function sleep(ms){return new Promise(res=>setTimeout(res,ms));}
+
+        async function bubbleSort(arr){
+            const n=arr.length;
+            for(let i=0;i<n-1;i++){
+                for(let j=0;j<n-i-1;j++){
+                    renderArray(arr, j, j+1);
+                    await sleep(500);
+                    if(arr[j]>arr[j+1]){
+                        [arr[j],arr[j+1]]=[arr[j+1],arr[j]];
+                        renderArray(arr, j, j+1);
+                        await sleep(500);
+                    }
+                }
+            }
+            renderArray(arr);
+        }
+
+        document.getElementById('newArray').onclick=()=>{array=getRandomArray();renderArray(array);} 
+        document.getElementById('sort').onclick=()=>{bubbleSort(array);};
+        // init
+        array=getRandomArray(); renderArray(array);
+    </script>
+</body>
+</html>
