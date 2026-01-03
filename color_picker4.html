@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Color Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.5s ease;
+        }
+        
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        .color-btn {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .color-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .color-display {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Random Color Picker</h1>
+        <button class="color-btn" onclick="pickRandomColor()">Pick Random Color</button>
+        <div class="color-display" id="colorDisplay"></div>
+    </div>
+
+    <script>
+        function pickRandomColor() {
+            // Generate random RGB values
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            
+            // Create RGB color string
+            const rgbColor = `rgb(${r}, ${g}, ${b})`;
+            
+            // Set the background color
+            document.body.style.backgroundColor = rgbColor;
+            
+            // Display the color value
+            document.getElementById('colorDisplay').textContent = `Current color: ${rgbColor}`;
+        }
+        
+        // Pick a color when the page loads
+        window.onload = function() {
+            pickRandomColor();
+        };
+    </script>
+</body>
+</html>

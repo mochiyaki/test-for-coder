@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Color Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            transition: background-color 0.5s ease;
+        }
+        
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        #colorButton {
+            padding: 12px 24px;
+            font-size: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        #colorButton:hover {
+            background-color: #45a049;
+        }
+        
+        #colorButton:active {
+            transform: scale(0.98);
+        }
+        
+        #currentColor {
+            margin-top: 1.5rem;
+            font-family: monospace;
+            font-size: 1.2rem;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Random Color Picker</h1>
+        <button id="colorButton">Pick Random Color</button>
+        <div id="currentColor">Current Color: #f0f0f0</div>
+    </div>
+
+    <script>
+        const colorButton = document.getElementById('colorButton');
+        const currentColorDisplay = document.getElementById('currentColor');
+        
+        // Function to generate a random hex color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        // Function to change background color
+        function changeBackgroundColor() {
+            const randomColor = getRandomColor();
+            document.body.style.backgroundColor = randomColor;
+            currentColorDisplay.textContent = `Current Color: ${randomColor}`;
+        }
+        
+        // Add event listener to the button
+        colorButton.addEventListener('click', changeBackgroundColor);
+        
+        // Set initial color
+        changeBackgroundColor();
+    </script>
+</body>
+</html>

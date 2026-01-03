@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Visualization</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            margin: 30px 0;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .array-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 200px;
+            margin: 30px 0;
+            gap: 5px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        
+        .array-bar {
+            background-color: #3498db;
+            width: 40px;
+            transition: height 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .array-bar.comparing {
+            background-color: #e74c3c;
+        }
+        
+        .array-bar.swapping {
+            background-color: #f39c12;
+        }
+        
+        .array-bar.sorted {
+            background-color: #27ae60;
+        }
+        
+        .algorithm-info {
+            background-color: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .algorithm-info h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        .step-info {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #2c3e50;
+        }
+        
+        .complexity {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .complexity-item {
+            text-align: center;
+        }
+        
+        .complexity-value {
+            font-size: 18px;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bubble Sort Visualization</h1>
+        <p class="description">Watch how the bubble sort algorithm works step by step to sort an array of numbers.</p>
+        
+        <div class="controls">
+            <button id="generateBtn">Generate New Array</button>
+            <button id="sortBtn">Start Sorting</button>
+            <button id="pauseBtn" disabled>Pause</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        
+        <div class="array-container" id="arrayContainer"></div>
+        
+        <div class="step-info" id="stepInfo">Ready to start sorting. Click "Start Sorting" to begin.</div>
+        
+        <div class="algorithm-info">
+            <h2>About Bubble Sort</h2>
+            <p>Bubble sort is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.</p>
+            
+            <div class="complexity">
+                <div class="complexity-item">
+                    <div>Time Complexity</div>
+                    <div class="complexity-value">O(n²)</div>
+                </div>
+                <div class="complexity-item">
+                    <div>Space Complexity</div>
+                    <div class="complexity-value">O(1)</div>
+                </div>
+                <div class="complexity-item">
+                    <div>Stable</div>
+                    <div class="complexity-value">Yes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const arrayContainer = document.getElementById('arrayContainer');
+        const generateBtn = document.getElementById('generateBtn');
+        const sortBtn = document.getElementById('sortBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const stepInfo = document.getElementById('stepInfo');
+        
+        let array = [];
+        let isSorting = false;
+        let isPaused = false;
+        let timeoutId = null;
+        const arraySize = 15;
+        
+        // Generate a random array of numbers
+        function generateArray() {
+            array = [];
+            for (let i = 0; i < arraySize; i++) {
+                array.push(Math.floor(Math.random() * 90) + 10); // Random numbers between 10 and 100
+            }
+            renderArray();
+            stepInfo.textContent = "New array generated. Click 'Start Sorting' to begin.";
+        }
+        
+        // Render the array as bars
+        function renderArray() {
+            arrayContainer.innerHTML = '';
+            array.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'array-bar';
+                bar.style.height = `${value * 1.5}px`;
+                bar.dataset.value = value;
+                bar.dataset.index = index;
+                arrayContainer.appendChild(bar);
+            });
+        }
+        
+        // Update bar styling based on state
+        function updateBars(indices, state) {
+            const bars = document.querySelectorAll('.array-bar');
+            bars.forEach((bar, index) => {
+                bar.classList.remove('comparing', 'swapping', 'sorted');
+                if (indices.includes(index)) {
+                    bar.classList.add(state);
+                }
+            });
+        }
+        
+        // Bubble sort implementation with visualization
+        async function bubbleSort() {
+            if (isSorting) return;
+            
+            isSorting = true;
+            isPaused = false;
+            sortBtn.disabled = true;
+            pauseBtn.disabled = false;
+            pauseBtn.textContent = "Pause";
+            
+            const arr = [...array]; // Create a copy
+            const n = arr.length;
+            
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    // Mark elements being compared
+                    updateBars([j, j + 1], 'comparing');
+                    stepInfo.textContent = `Comparing ${arr[j]} and ${arr[j + 1]}`;
+                    
+                    // Wait a bit to show the comparison
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    if (arr[j] > arr[j + 1]) {
+                        // Swap elements
+                        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                        
+                        // Show swap
+                        updateBars([j, j + 1], 'swapping');
+                        stepInfo.textContent = `Swapping ${arr[j + 1]} and ${arr[j]}`;
+                        
+                        // Update the array display
+                        array = [...arr];
+                        renderArray();
+                        
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                    
+                    // Mark elements as sorted (from right to left)
+                    if (j >= n - i - 2) {
+                        const sortedIndices = [];
+                        for (let k = j + 1; k >= n - i - 1; k--) {
+                            sortedIndices.push(k);
+                        }
+                        updateBars(sortedIndices, 'sorted');
+                    }
+                    
+                    // Check if paused
+                    if (isPaused) {
+                        isSorting = false;
+                        pauseBtn.textContent = "Resume";
+                        stepInfo.textContent = "Sorting paused. Click 'Resume' to continue.";
+                        return;
+                    }
+                }
+                
+                // Mark last element as sorted
+                const lastElementIndex = n - i - 1;
+                const sortedElement = document.querySelector(`.array-bar[data-index="${lastElementIndex}"]`);
+                if (sortedElement) {
+                    sortedElement.classList.add('sorted');
+                }
+                
+                stepInfo.textContent = `Pass ${i + 1} complete. The largest element is now in its correct position.`;
+            }
+            
+            // Mark all elements as sorted
+            updateBars(Array.from({length: n}, (_, i) => i), 'sorted');
+            stepInfo.textContent = "Sorting complete! Array is now sorted.";
+            
+            isSorting = false;
+            sortBtn.disabled = false;
+            pauseBtn.disabled = true;
+        }
+        
+        // Pause/resume sorting
+        function togglePause() {
+            if (!isSorting) return;
+            
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? "Resume" : "Pause";
+            
+            if (!isPaused) {
+                // Resume sorting
+                bubbleSort();
+            }
+        }
+        
+        // Reset to initial state
+        function reset() {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            isSorting = false;
+            isPaused = false;
+            sortBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = "Pause";
+            generateArray();
+            stepInfo.textContent = "Reset complete. Click 'Generate New Array' to start.";
+        }
+        
+        // Event listeners
+        generateBtn.addEventListener('click', generateArray);
+        sortBtn.addEventListener('click', bubbleSort);
+        pauseBtn.addEventListener('click', togglePause);
+        resetBtn.addEventListener('click', reset);
+        
+        // Initialize
+        generateArray();
+    </script>
+</body>
+</html>
