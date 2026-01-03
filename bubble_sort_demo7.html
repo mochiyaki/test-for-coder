@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bubble Sort Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #array {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      margin: 5px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.3s;
+      font-size: 1.2rem;
+    }
+    .highlight {
+      background: #ff9800;
+      color: white;
+    }
+    .sorted {
+      background: #4caf50;
+      color: white;
+    }
+    button, input {
+      margin: 5px;
+      padding: 5px 10px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bubble Sort Demo</h1>
+  <div>
+    <input id="arrayInput" type="text" placeholder="e.g. 5,1,4,2,8"/>
+    <button id="loadBtn">Load Array</button>
+    <button id="randomBtn">Random Array</button>
+    <button id="sortBtn">Sort</button>
+  </div>
+  <div id="array"></div>
+
+  <script>
+    const arrayContainer = document.getElementById('array');
+    let arr = [];
+
+    function renderArray(highlights = [], sortedIdx = -1) {
+      arrayContainer.innerHTML = '';
+      arr.forEach((val, i) => {
+        const div = document.createElement('div');
+        div.className = 'cell';
+        if (i === sortedIdx) div.classList.add('sorted');
+        else if (highlights.includes(i)) div.classList.add('highlight');
+        div.textContent = val;
+        arrayContainer.appendChild(div);
+      });
+    }
+
+    function swap(i, j) {
+      const temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+    }
+
+    async function bubbleSort() {
+      const n = arr.length;
+      for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - i - 1; j++) {
+          renderArray([j, j + 1], n - i - 1);
+          await new Promise(r => setTimeout(r, 800));
+          if (arr[j] > arr[j + 1]) {
+            swap(j, j + 1);
+            renderArray([j, j + 1], n - i - 1);
+            await new Promise(r => setTimeout(r, 800));
+          }
+        }
+        renderArray([], n - i - 1);
+      }
+      renderArray([], 0);
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', () => {
+      const text = document.getElementById('arrayInput').value;
+      arr = text.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+      renderArray();
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      const len = Math.floor(Math.random() * 10) + 5;
+      arr = [...Array(len)].map(() => Math.floor(Math.random() * 99) + 1);
+      renderArray();
+    });
+
+    document.getElementById('sortBtn').addEventListener('click', () => {
+      if (arr.length === 0) return;
+      bubbleSort();
+    });
+
+    // Initial demo array
+    arr = [5, 1, 4, 2, 8];
+    renderArray();
+  </script>
+</body>
+</html>
