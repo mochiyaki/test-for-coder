@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Red‑Black Tree Demo</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 10px; }
+  #controls { margin-bottom: 10px; }
+  #treeContainer { border: 1px solid #ccc; margin-top: 10px; }
+  .node circle { cursor: pointer; }
+  .node text { font-size: 12px; }
+  .edge { stroke: #999; stroke-width: 1.5px; }
+</style>
+</head>
+<body>
+<h1>Red‑Black Tree Demo</h1>
+<div id="controls">
+  <label>Insert values (comma separated): </label>
+  <input type="text" id="values" size="30" placeholder="e.g., 20,15,25,10,30">
+  <button id="insertBtn">Insert</button>
+  <button id="clearBtn">Clear</button>
+</div>
+<div id="treeContainer" style="overflow:auto; position:relative;">
+  <svg id="treeSvg" width="1000" height="600"></svg>
+</div>
+<script>
+// Node definition
+class RBNode {
+  constructor(key, color = "RED", parent = null) {
+    this.key = key;
+    this.color = color; // "RED" or "BLACK"
+    this.parent = parent;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+class RBTree {
+  constructor() {
+    this.root = null;
+  }
+
+  /* Left rotate around node x */
+  rotateLeft(x) {
+    let y = x.right;
+    if (!y) return;
+    x.right = y.left;
+    if (y.left) y.left.parent = x;
+    y.parent = x.parent;
+    if (!x.parent) this.root = y;
+    else if (x === x.parent.left) x.parent.left = y;
+    else x.parent.right = y;
+    y.left = x;
+    x.parent = y;
+  }
+
+  /* Right rotate around node y */
+  rotateRight(y) {
+    let x = y.left;
+    if (!x) return;
+    y.left = x.right;
+    if (x.right) x.right.parent = y;
+    x.parent = y.parent;
+    if (!y.parent) this.root = x;
+    else if (y === y.parent.left) y.parent.left = x;
+    else y.parent.right = x;
+    x.right = y;
+    y.parent = x;
+  }
+
+  /* Insert key into the tree */
+  insert(key) {
+    let node = new RBNode(key);
+    // BST insert
+    let y = null;
+    let x = this.root;
+    while (x) {
+      y = x;
+      if (node.key < x.key) x = x.left;
+      else x = x.right;
+    }
+    node.parent = y;
+    if (!y) this.root = node; // Tree was empty
+    else if (node.key < y.key) y.left = node;
+    else y.right = node;
+
+    // New node is always red – fixup to maintain RB properties
+    this.insertFixup(node);
+  }
+
+  insertFixup(z) {
+    while (z.parent && z.parent.color === "RED") {
+      if (z.parent === z.parent.parent.left) {
+        let y = z.parent.parent.right;
+        if (y && y.color === "RED") {
+          z.parent.color = "BLACK";
+          y.color = "BLACK";
+          z.parent.parent.color = "RED";
+          z = z.parent.parent;
+        } else {
+          if (z === z.parent.right) {
+            z = z.parent;
+            this.rotateLeft(z);
+          }
+          z.parent.color = "BLACK";
+          z.parent.parent.color = "RED";
+          this.rotateRight(z.parent.parent);
+        }
+      } else {
+        // Mirror image: parent is right child
+        let y = z.parent.parent.left;
+        if (y && y.color === "RED") {
+          z.parent.color = "BLACK";
+          y.color = "BLACK";
+          z.parent.parent.color = "RED";
+          z = z.parent.parent;
+        } else {
+          if (z === z.parent.left) {
+            z = z.parent;
+            this.rotateRight(z);
+          }
+          z.parent.color = "BLACK";
+          z.parent.parent.color = "RED";
+          this.rotateLeft(z.parent.parent);
+        }
+      }
+    }
+    this.root.color = "BLACK";
+  }
+}
+
+// Visualization logic
+const svg = document.getElementById('treeSvg');
+const width = svg.clientWidth;
+const height = svg.clientHeight;
+const nodeRadius = 20;
+const verticalGap = 80;
+const horizontalGap = 40;
+
+function clearSvg() {
+  while (svg.firstChild) {
+    svg.removeChild(svg.firstChild);
+  }
+}
+
+function drawTree(tree) {
+  clearSvg();
+  if (!tree.root) return;
+  // Recursively compute positions
+  const positions = new Map();
+  function assignPositions(node, depth, x) {
+    if (!node) return 0;
+    const leftWidth = assignPositions(node.left, depth + 1, x - 100);
+    const rightWidth = assignPositions(node.right, depth + 1, x + 100);
+    const posX = x;
+    const posY = depth * verticalGap + 40;
+    positions.set(node, {x: posX, y: posY});
+    return Math.max(leftWidth, rightWidth) + 1;
+  }
+
+  assignPositions(tree.root, 0, width / 2);
+
+  // Draw edges first
+  function drawEdges(node) {
+    if (!node) return;
+    const pos = positions.get(node);
+    if (node.left) {
+      const leftPos = positions.get(node.left);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', pos.x);
+      line.setAttribute('y1', pos.y);
+      line.setAttribute('x2', leftPos.x);
+      line.setAttribute('y2', leftPos.y);
+      line.setAttribute('class', 'edge');
+      svg.appendChild(line);
+      drawEdges(node.left);
+    }
+    if (node.right) {
+      const rightPos = positions.get(node.right);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', pos.x);
+      line.setAttribute('y1', pos.y);
+      line.setAttribute('x2', rightPos.x);
+      line.setAttribute('y2', rightPos.y);
+      line.setAttribute('class', 'edge');
+      svg.appendChild(line);
+      drawEdges(node.right);
+    }
+  }
+
+  drawEdges(tree.root);
+
+  // Draw nodes
+  tree.root && positionNodes(tree.root, positions);
+
+  function positionNodes(node, positions) {
+    if (!node) return;
+    const pos = positions.get(node);
+    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    grp.setAttribute('transform', `translate(${pos.x},${pos.y})`);
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', nodeRadius);
+    circle.setAttribute('fill', node.color === "RED" ? "#FF4B5C" : "#2B2B2B");
+    circle.setAttribute('stroke', '#000');
+    circle.setAttribute('stroke-width', '1');
+    grp.appendChild(circle);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', 0);
+    text.setAttribute('y', 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', node.color === "RED" ? "#000" : "#FFF");
+    text.textContent = node.key;
+    grp.appendChild(text);
+    svg.appendChild(grp);
+    positionNodes(node.left, positions);
+    positionNodes(node.right, positions);
+  }
+}
+
+// Setup demo interactions
+const tree = new RBTree();
+
+document.getElementById('insertBtn').addEventListener('click', () => {
+  const input = document.getElementById('values').value.trim();
+  if (!input) return;
+  const values = input.split(',').map(v => Number(v.trim())).filter(v => !isNaN(v));
+  values.forEach(v => tree.insert(v));
+  drawTree(tree);
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  tree.root = null;
+  clearSvg();
+});
+</script>
+</body>
+</html>
