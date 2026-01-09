@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Red‑Black Tree Demo</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;text-align:center;margin:0;padding:20px;}
+  canvas{border:1px solid #ddd;background:#fafafa;}
+  #controls{margin-top:15px;}
+  button{margin:0 5px;padding:5px 10px;}
+</style>
+</head>
+<body>
+
+<h1>Red‑Black Tree Demo (Canvas, JavaScript)</h1>
+<canvas id="treeCanvas" width="800" height="600"></canvas>
+<div id="controls">
+  <button id="insertBtn">Insert key</button>
+  <button id="clearBtn">Clear tree</button>
+</div>
+
+<script>
+// ----------- Node definition ----------------------------------------
+class Node {
+    constructor(key, color = Node.RED, parent = null) {
+        this.key = key;       // numeric key
+        this.color = color;   // 'red' or 'black'
+        this.parent = parent;
+        this.left = null;
+        this.right = null;
+    }
+}
+Node.RED   = 'red';
+Node.BLACK = 'black';
+
+// ----------- Red‑Black Tree implementation ---------------------------
+class RBTree {
+    constructor() {
+        this.root = null;
+    }
+
+    // Public insert API – calls private methods for rotation/colour changes
+    insert(key) {
+        let newNode = new Node(key);
+        this.root = this._bstInsert(this.root, newNode);
+        this._insertFixup(newNode);
+    }
+
+    // Standard BST insert (iterative) – returns new root of subtree
+    _bstInsert(root, node) {
+        if (!root) return node;
+        let parent = null, curr = root;
+        while (curr) {
+            parent = curr;
+            if (node.key < curr.key) curr = curr.left;
+            else if (node.key > curr.key) curr = curr.right;
+            else return root;  // ignore duplicates
+        }
+        node.parent = parent;
+        if (node.key < parent.key) parent.left = node;
+        else parent.right = node;
+        return root;
+    }
+
+    // Restores red‑black properties after insertion
+    _insertFixup(node) {
+        while (node !== this.root && node.parent.color === Node.RED) {
+            let p = node.parent;
+            let g = p.parent;
+
+            // Case 1: p is left child of g
+            if (p === g.left) {
+                let y = g.right; // uncle
+                if (y && y.color === Node.RED) {
+                    // Recolour (Case 1)
+                    p.color = y.color = Node.BLACK;
+                    g.color = Node.RED;
+                    node = g;
+                } else {
+                    // Rotation (Case 2/3)
+                    if (node === p.right) {
+                        node = p;          // Case 2
+                        this._rotateLeft(node);
+                    }
+                    node.parent.color = Node.BLACK; // Case 3
+                    node.parent.parent.color = Node.RED;
+                    this._rotateRight(node.parent.parent);
+                }
+            }
+            // Symmetrical case: p is right child of g
+            else {
+                let y = g.left;
+                if (y && y.color === Node.RED) {
+                    // Recolour
+                    p.color = y.color = Node.BLACK;
+                    g.color = Node.RED;
+                    node = g;
+                } else {
+                    if (node === p.left) {
+                        node = p;
+                        this._rotateRight(node);
+                    }
+                    node.parent.color = Node.BLACK;
+                    node.parent.parent.color = Node.RED;
+                    this._rotateLeft(node.parent.parent);
+                }
+            }
+        }
+        this.root.color = Node.BLACK;
+    }
+
+    // Left rotation around node x
+    _rotateLeft(x) {
+        let y = x.right;
+        x.right = y.left;
+        if (y.left) y.left.parent = x;
+        y.parent = x.parent;
+        if (!x.parent) this.root = y;
+        else if (x === x.parent.left) x.parent.left = y;
+        else x.parent.right = y;
+        y.left = x;
+        x.parent = y;
+    }
+
+    // Right rotation around node x
+    _rotateRight(x) {
+        let y = x.left;
+        x.left = y.right;
+        if (y.right) y.right.parent = x;
+        y.parent = x.parent;
+        if (!x.parent) this.root = y;
+        else if (x === x.parent.right) x.parent.right = y;
+        else x.parent.left = y;
+        y.right = x;
+        x.parent = y;
+    }
+}
+
+// ----------- Visualisation --------------------------------------------
+class TreeRenderer {
+    constructor(canvas, tree) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.tree = tree;
+        this.nodeRadius = 20;
+        this.levelGap = 80;
+        this.nodeMap = new Map();
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (!this.tree.root) return;
+        this.nodeMap.clear();
+        const centerX = this.canvas.width / 2;
+        this._assignPositions(this.tree.root, centerX, 40);
+        this._drawEdges(this.tree.root);
+        this._drawNodes(this.tree.root);
+    }
+
+    // Recursively assign (x,y) coordinates for nodes
+    _assignPositions(node, x, y) {
+        const offset = Math.max(5, Math.floor(200 / (Math.log2((node.key + 1000) / 1000) + 1)));
+        node.x = x;
+        node.y = y;
+        if (node.left) this._assignPositions(node.left, x - offset, y + this.levelGap);
+        if (node.right) this._assignPositions(node.right, x + offset, y + this.levelGap);
+    }
+
+    _drawEdges(node) {
+        if (!node) return;
+        if (node.left) {
+            this._drawLine(node, node.left);
+            this._drawEdges(node.left);
+        }
+        if (node.right) {
+            this._drawLine(node, node.right);
+            this._drawEdges(node.right);
+        }
+    }
+
+    _drawLine(parent, child) {
+        this.ctx.strokeStyle = '#999';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(parent.x, parent.y);
+        this.ctx.lineTo(child.x, child.y);
+        this.ctx.stroke();
+    }
+
+    _drawNodes(node) {
+        if (!node) return;
+        const ctx = this.ctx;
+        // Node circle
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, this.nodeRadius, 0, Math.PI * 2);
+        ctx.fillStyle = node.color === Node.RED ? '#e63946' : '#457b9d';
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+        // Key text
+        ctx.fillStyle = '#fff';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.key, node.x, node.y);
+        // Recurse
+        this._drawNodes(node.left);
+        this._drawNodes(node.right);
+    }
+}
+
+// ----------- Wiring UI -----------------------------------------------
+const canvas = document.getElementById('treeCanvas');
+const tree = new RBTree();
+const renderer = new TreeRenderer(canvas, tree);
+renderer.draw();
+
+document.getElementById('insertBtn').addEventListener('click', () => {
+    const keyStr = prompt('Enter an integer key to insert:');
+    if (keyStr === null) return; // cancel
+    const key = parseInt(keyStr, 10);
+    if (Number.isNaN(key)) {
+        alert('That isn\'t a valid integer!');
+        return;
+    }
+    tree.insert(key);
+    renderer.draw();
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+    if (confirm('Clear the whole tree?')) {
+        tree.root = null;
+        renderer.draw();
+    }
+});
+
+</script>
+</body>
+</html>
